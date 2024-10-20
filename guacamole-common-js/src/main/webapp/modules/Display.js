@@ -38,6 +38,7 @@ Guacamole.Display = function() {
 
     var displayWidth = 0;
     var displayHeight = 0;
+    var displayMonitors = 1;
     var displayScale = 1;
 
     // Create display
@@ -621,6 +622,16 @@ Guacamole.Display = function() {
     };
 
     /**
+     * Returns the number of monitors.
+     * 
+     * @return {!number}
+     *     The number of monitors.
+     */
+    this.getMonitors = function() {
+        return displayMonitors;
+    };
+
+    /**
      * Returns the default layer of this display. Each Guacamole display always
      * has at least one layer. Other layers can optionally be created within
      * this layer, but the default layer cannot be removed and is the absolute
@@ -821,6 +832,16 @@ Guacamole.Display = function() {
         guac_display.cursorY = y;
 
     };
+
+    /**
+     * Change the number of monitors.
+     * 
+     * @param {!number} monitors
+     *     The number of monitors.
+     */
+    this.updateMonitors = function updateMonitors(monitors) {
+        displayMonitors = monitors;
+    }
 
     /**
      * Changes the size of the given Layer to the given width and height.

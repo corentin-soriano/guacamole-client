@@ -40,6 +40,7 @@ angular.module('client').controller('clientController', ['$scope', '$routeParams
     const dataSourceService      = $injector.get('dataSourceService');
     const guacClientManager      = $injector.get('guacClientManager');
     const guacFullscreen         = $injector.get('guacFullscreen');
+    const guacManageScreen       = $injector.get('guacManageScreen');
     const iconService            = $injector.get('iconService');
     const preferenceService      = $injector.get('preferenceService');
     const requestService         = $injector.get('requestService');
@@ -698,6 +699,23 @@ angular.module('client').controller('clientController', ['$scope', '$routeParams
     };
 
     /**
+     * Action that adds an additional screen on the RDP connection.
+     */
+    var ADD_SCREEN_MENU_ACTION = {
+        name      : 'CLIENT.ACTION_ADD_SCREEN',
+        className : 'action',
+        callback  : function () {
+
+            // Add or remove additional screen
+            guacManageScreen.toggleScreen();
+
+            // Close menu
+            $scope.menu.shown = false;
+
+        }
+    };
+
+    /**
      * Action which immediately disconnects the currently-connected client, if
      * any.
      */
@@ -722,7 +740,11 @@ angular.module('client').controller('clientController', ['$scope', '$routeParams
     };
 
     // Set client-specific menu actions
-    $scope.clientMenuActions = [ DISCONNECT_MENU_ACTION,FULLSCREEN_MENU_ACTION ];
+    $scope.clientMenuActions = [
+        DISCONNECT_MENU_ACTION,
+        FULLSCREEN_MENU_ACTION,
+        ADD_SCREEN_MENU_ACTION
+    ];
 
     /**
      * @borrows Protocol.getNamespace
@@ -874,6 +896,9 @@ angular.module('client').controller('clientController', ['$scope', '$routeParams
 
         // always unset fullscreen mode to not confuse user 
         guacFullscreen.setFullscreenMode(false);
+
+        // Close additional screens
+        guacManageScreen.closeScreen();
     });
 
 }]);

@@ -324,14 +324,17 @@ Guacamole.Client = function(tunnel) {
      *
      * @param {!number} height
      *     The height of the screen.
+     * 
+     * @param {!number} monitors
+     *     The count of monitors.
      */
-    this.sendSize = function(width, height) {
+    this.sendSize = function sendSize(width, height, monitors) {
 
         // Do not send requests if not connected
         if (!isConnected())
             return;
 
-        tunnel.sendMessage("size", width, height);
+        tunnel.sendMessage("size", width, height, monitors);
 
     };
 

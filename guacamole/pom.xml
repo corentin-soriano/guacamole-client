@@ -78,25 +78,6 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>install-node-and-npm</id>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                        <configuration>
-                            <nodeVersion>v18.18.0</nodeVersion>
-                            <npmVersion>9.8.1</npmVersion>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm-ci</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>ci</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>npm-build</id>
                         <phase>generate-resources</phase>
                         <goals>
