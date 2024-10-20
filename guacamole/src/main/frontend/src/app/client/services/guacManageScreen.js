@@ -20,11 +20,11 @@
 /**
  * A service for adding additional screen.
  */
-angular.module('client').factory('guacManageScreen', ['$routeParams', '$injector',
-    function guacManageScreen($routeParams, $injector) {
+angular.module('client').factory('guacManageScreen', ['$injector',
+    function guacManageScreen($injector) {
 
     // Required services
-    const $window               = $injector.get('$window');
+    const $window = $injector.get('$window');
 
     var service = {};
     var additionalScreen = null;
@@ -32,13 +32,12 @@ angular.module('client').factory('guacManageScreen', ['$routeParams', '$injector
     service.toggleScreen = function toggleScreen() {
 
         // Create additional screen
-        if (!additionalScreen || additionalScreen.closed) {
-            additionalScreen = window.open(
-                './#/client/' + $routeParams.id, 'additionalScreen',
+        if (!additionalScreen || additionalScreen.closed)
+            additionalScreen = $window.open(
+                './#/client/secondaryMonitor', 'additionalScreen',
                 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,\
                 resizable=yes,width=800,height=600'
             );
-        }
 
         // Close additional screen
         else {
@@ -46,14 +45,33 @@ angular.module('client').factory('guacManageScreen', ['$routeParams', '$injector
             additionalScreen = null;
         }
 
+        // Trigger the screen resize
+        $window.dispatchEvent(new Event('monitor-count'));
+
     };
 
     // Close additional screens
     service.closeScreen = function closeScreen() {
         if (additionalScreen) {
+
             additionalScreen.close();
             additionalScreen = null;
+
+            // Trigger the screen resize
+            $window.dispatchEvent(new Event('monitor-count'));
+
         }
+    }
+
+    // Get screens number
+    service.getScreenCount = function getScreenCount() {
+
+        if (!additionalScreen || additionalScreen.closed)
+            return 1;
+
+        else
+            return 2;
+
     }
 
     // Close additional screens when window is unloaded

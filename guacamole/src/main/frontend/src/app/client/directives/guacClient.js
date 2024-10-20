@@ -51,11 +51,12 @@ angular.module('client').directive('guacClient', [function guacClient() {
         function guacClientController($scope, $injector, $element) {
 
         // Required types
-        const ManagedClient = $injector.get('ManagedClient');
+        const ManagedClient     = $injector.get('ManagedClient');
             
         // Required services
-        const $rootScope = $injector.get('$rootScope');
-        const $window = $injector.get('$window');
+        const $rootScope        = $injector.get('$rootScope');
+        const $window           = $injector.get('$window');
+        const guacManageScreen  = $injector.get('guacManageScreen');
             
         /**
          * Whether the local, hardware mouse cursor is in use.
@@ -459,17 +460,25 @@ angular.module('client').directive('guacClient', [function guacClient() {
                 ManagedClient.connect($scope.client, main.offsetWidth, main.offsetHeight);
 
                 const pixelDensity = $window.devicePixelRatio || 1;
-                const width  = main.offsetWidth  * pixelDensity;
-                const height = main.offsetHeight * pixelDensity;
+                const width    = main.offsetWidth  * pixelDensity;
+                const height   = main.offsetHeight * pixelDensity;
+                const monitors = guacManageScreen.getScreenCount();
 
-                if (display.getWidth() !== width || display.getHeight() !== height)
-                    client.sendSize(width, height);
+                if (display.getMonitors() !== monitors) {
+                    display.updateMonitors(monitors);
+                    client.sendSize(width, height, monitors);
+                }
+
+                else if (display.getWidth() !== width || display.getHeight() !== height)
+                    client.sendSize(width, height, monitors);
 
             }
 
             $scope.$evalAsync(updateDisplayScale);
 
         };
+
+        $window.addEventListener('monitor-count', $scope.mainElementResized);
 
         // Scroll client display if absolute mouse is in use (the same drag
         // gesture is needed for moving the mouse pointer with relative mouse)
