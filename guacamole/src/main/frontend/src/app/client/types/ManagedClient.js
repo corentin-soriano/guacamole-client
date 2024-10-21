@@ -52,6 +52,7 @@ angular.module('client').factory('ManagedClient', ['$rootScope', '$injector',
     const guacAudio               = $injector.get('guacAudio');
     const guacHistory             = $injector.get('guacHistory');
     const guacImage               = $injector.get('guacImage');
+    const guacManageScreen        = $injector.get('guacManageScreen');
     const guacVideo               = $injector.get('guacVideo');
 
     /**
@@ -654,6 +655,33 @@ angular.module('client').factory('ManagedClient', ['$rootScope', '$injector',
                 });
             });
         };
+        
+        // Update canvas on other screens
+        let lastCanvasUpdateTime = 0;
+        client.oncanvasupdate = async function canvasUpdated() {
+
+            const currentTime = Date.now();
+
+            // Reduce load avg
+            if (currentTime - lastCanvasUpdateTime < 30)
+                return;
+
+            const display = managedClient.client.getDisplay();
+            const canvas = display.flatten();
+            if (canvas && guacManageScreen.getScreenCount() > 1) {
+
+                const size = {
+                    height: canvas.getAttribute('height'),
+                    width: canvas.getAttribute('width'),
+                    left: '-' + $window.innerWidth + 'px'
+                };
+
+                guacManageScreen.pushContent("size", size);
+                guacManageScreen.pushContent("canvas", canvas.toDataURL());
+
+                lastCanvasUpdateTime = currentTime;
+            }
+        }
 
         // Manage the client display
         managedClient.managedDisplay = ManagedDisplay.getInstance(client.getDisplay());

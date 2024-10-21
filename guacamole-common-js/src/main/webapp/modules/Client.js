@@ -738,6 +738,13 @@ Guacamole.Client = function(tunnel) {
     this.onmsg = null;
 
     /**
+     * Fired when canvas was updated.
+     * 
+     * @event
+     */
+    this.oncanvasupdate = null;
+
+    /**
      * Fired when a user joins a shared connection.
      *
      * @event
@@ -1820,8 +1827,10 @@ Guacamole.Client = function(tunnel) {
     tunnel.oninstruction = function(opcode, parameters) {
 
         var handler = instructionHandlers[opcode];
-        if (handler)
+        if (handler) {
             handler(parameters);
+            if (guac_client.oncanvasupdate) guac_client.oncanvasupdate();
+        }
 
         // Leverage network activity to ensure the next keep-alive ping is
         // sent, even if the browser is currently throttling timers

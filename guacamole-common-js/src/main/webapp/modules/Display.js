@@ -1710,6 +1710,10 @@ Guacamole.Display = function() {
      */
     this.scale = function(scale) {
 
+        /* Display only the first monitor content */
+        if (displayMonitors > 1)
+            scale = 1;
+
         display.style.transform =
         display.style.WebkitTransform =
         display.style.MozTransform =

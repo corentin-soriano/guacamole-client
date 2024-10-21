@@ -704,7 +704,7 @@ angular.module('client').controller('clientController', ['$scope', '$routeParams
     var ADD_SCREEN_MENU_ACTION = {
         name      : 'CLIENT.ACTION_ADD_SCREEN',
         className : 'action',
-        callback  : function () {
+        callback  : function addScreen() {
 
             // Add or remove additional screen
             guacManageScreen.toggleScreen();

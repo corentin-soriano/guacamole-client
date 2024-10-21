@@ -26,18 +26,38 @@ angular.module('client').factory('guacManageScreen', ['$injector',
     // Required services
     const $window = $injector.get('$window');
 
+    const expected_origin = $window.location.protocol + '//' + $window.location.host;
+
     var service = {};
     var additionalScreen = null;
+
+    // Push content
+    service.pushContent = function pushContent(type, content) {
+        if (additionalScreen && !additionalScreen.closed) {
+            const message = {
+                [type]: content
+            };
+
+            additionalScreen.postMessage(message, expected_origin);
+        }
+    }    
 
     service.toggleScreen = function toggleScreen() {
 
         // Create additional screen
-        if (!additionalScreen || additionalScreen.closed)
+        if (!additionalScreen || additionalScreen.closed) {
             additionalScreen = $window.open(
-                './#/client/secondaryMonitor', 'additionalScreen',
-                'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,\
-                resizable=yes,width=800,height=600'
+                './#/secondaryMonitor', 'additionalScreen',
+                'resizable=yes,width=' + $window.innerWidth + ',height=' + $window.innerHeight
             );
+
+/*            setTimeout(function() {
+                const targetElement = document.querySelector('.display');
+                service.pushContent("html", targetElement.innerHTML);
+            }, 1000)
+*/
+
+        }
 
         // Close additional screen
         else {
@@ -66,8 +86,13 @@ angular.module('client').factory('guacManageScreen', ['$injector',
     // Get screens number
     service.getScreenCount = function getScreenCount() {
 
-        if (!additionalScreen || additionalScreen.closed)
+        if (!additionalScreen)
             return 1;
+
+        else if (additionalScreen.closed) {
+            service.closeScreen();
+            return 1;
+        }
 
         else
             return 2;
