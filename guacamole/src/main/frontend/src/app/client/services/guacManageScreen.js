@@ -51,12 +51,6 @@ angular.module('client').factory('guacManageScreen', ['$injector',
                 'resizable=yes,width=' + $window.innerWidth + ',height=' + $window.innerHeight
             );
 
-/*            setTimeout(function() {
-                const targetElement = document.querySelector('.display');
-                service.pushContent("html", targetElement.innerHTML);
-            }, 1000)
-*/
-
         }
 
         // Close additional screen

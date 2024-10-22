@@ -663,7 +663,7 @@ angular.module('client').factory('ManagedClient', ['$rootScope', '$injector',
             const currentTime = Date.now();
 
             // Reduce load avg
-            if (currentTime - lastCanvasUpdateTime < 30)
+            if (currentTime - lastCanvasUpdateTime < 1000)
                 return;
 
             const display = managedClient.client.getDisplay();

@@ -52,13 +52,13 @@ angular.module('client').controller('secondaryMonitorController', ['$injector',
         if (message.origin !== expected_origin)
             return;
 
-        /*if (message.data.html) {
-            const displayContainer = document.querySelector('.display');
-            displayContainer.innerHTML = message.data.html;
-        }*/
-
         if (message.data.size) {
-            console.log(message.data.size.left);
+            const windowUnusableHeight = $window.outerHeight - $window.innerHeight;
+            const windowUnusableWidth = $window.outerWidth - $window.innerWidth;
+            $window.resizeTo(
+                parseInt(message.data.size.width)/2 + windowUnusableWidth,
+                parseInt(message.data.size.height) + windowUnusableHeight
+            );
             canvas.style.left = '0px'; //message.data.size.left;
             canvas.setAttribute('width', message.data.size.width/2);
             canvas.setAttribute('height', message.data.size.height);
