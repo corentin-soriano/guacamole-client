@@ -657,7 +657,21 @@ angular.module('client').factory('ManagedClient', ['$rootScope', '$injector',
         };
         
         // Update canvas on other screens
-        let lastCanvasUpdateTime = 0;
+        client.oncanvasupdate = async function canvasUpdated(opcode, parameters) {
+
+            if (guacManageScreen.getScreenCount() > 1) {
+                const handler = {
+                    'opcode': opcode,
+                    'parameters': parameters,
+                };
+
+                guacManageScreen.pushContent('handler', handler);
+            }
+
+        };
+
+
+/*        let lastCanvasUpdateTime = 0;
         client.oncanvasupdate = async function canvasUpdated() {
 
             const currentTime = Date.now();
@@ -681,7 +695,7 @@ angular.module('client').factory('ManagedClient', ['$rootScope', '$injector',
 
                 lastCanvasUpdateTime = currentTime;
             }
-        }
+        }*/
 
         // Manage the client display
         managedClient.managedDisplay = ManagedDisplay.getInstance(client.getDisplay());

@@ -1826,16 +1826,22 @@ Guacamole.Client = function(tunnel) {
 
     tunnel.oninstruction = function(opcode, parameters) {
 
-        var handler = instructionHandlers[opcode];
+        const handler = instructionHandlers[opcode];
         if (handler) {
             handler(parameters);
-            if (guac_client.oncanvasupdate) guac_client.oncanvasupdate();
+            if (guac_client.oncanvasupdate) guac_client.oncanvasupdate(opcode, parameters);
         }
 
         // Leverage network activity to ensure the next keep-alive ping is
         // sent, even if the browser is currently throttling timers
         scheduleKeepAlive();
 
+    };
+
+    this.runHandler = function runHandler(opcode, parameters) {
+        const handler = instructionHandlers[opcode];
+        if (handler)
+            handler(parameters);
     };
 
     /**

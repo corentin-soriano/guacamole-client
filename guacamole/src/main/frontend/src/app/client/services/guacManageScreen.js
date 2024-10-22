@@ -40,7 +40,7 @@ angular.module('client').factory('guacManageScreen', ['$injector',
 
             additionalScreen.postMessage(message, expected_origin);
         }
-    }    
+    };
 
     service.toggleScreen = function toggleScreen() {
 
@@ -75,7 +75,7 @@ angular.module('client').factory('guacManageScreen', ['$injector',
             $window.dispatchEvent(new Event('monitor-count'));
 
         }
-    }
+    };
 
     // Get screens number
     service.getScreenCount = function getScreenCount() {
@@ -91,7 +91,7 @@ angular.module('client').factory('guacManageScreen', ['$injector',
         else
             return 2;
 
-    }
+    };
 
     // Close additional screens when window is unloaded
     $window.addEventListener('unload', service.closeScreen);
