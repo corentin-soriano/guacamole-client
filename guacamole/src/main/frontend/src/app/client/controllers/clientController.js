@@ -699,15 +699,16 @@ angular.module('client').controller('clientController', ['$scope', '$routeParams
     };
 
     /**
-     * Action that adds an additional screen on the RDP connection.
+     * Action that adds an additional monitor on the RDP connection. Will open
+     * a new window to display the new screen.
      */
     var ADD_SCREEN_MENU_ACTION = {
         name      : 'CLIENT.ACTION_ADD_SCREEN',
         className : 'action',
         callback  : function addScreen() {
 
-            // Add or remove additional screen
-            guacManageScreen.toggleScreen();
+            // Add or remove additional monitor
+            guacManageScreen.toggleMonitor();
 
             // Close menu
             $scope.menu.shown = false;
@@ -897,8 +898,8 @@ angular.module('client').controller('clientController', ['$scope', '$routeParams
         // always unset fullscreen mode to not confuse user 
         guacFullscreen.setFullscreenMode(false);
 
-        // Close additional screens
-        guacManageScreen.closeScreen();
+        // Close additional monitors
+        guacManageScreen.closeMonitors();
     });
 
 }]);

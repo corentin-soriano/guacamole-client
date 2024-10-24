@@ -74,7 +74,7 @@ angular.module('client').factory('guacManageScreen', ['$injector', '$routeParams
     /**
      * Open or close additional monitor window.
      */
-    service.toggleScreen = function toggleScreen() {
+    service.toggleMonitor = function toggleMonitor() {
 
         // Create additional monitor by opening new window
         if (!additionalMonitor || additionalMonitor.closed)
@@ -85,7 +85,7 @@ angular.module('client').factory('guacManageScreen', ['$injector', '$routeParams
 
         // Close additional monitor by closing his window
         else
-            service.closeScreen();
+            service.closeMonitors();
 
         // Create broadcast on first launch.
         if (!broadcast) {
@@ -124,7 +124,7 @@ angular.module('client').factory('guacManageScreen', ['$injector', '$routeParams
     /**
      * Close additional monitor.
      */
-    service.closeScreen = function closeScreen() {
+    service.closeMonitors = function closeMonitors() {
 
         if (additionalMonitor) {
 
@@ -147,21 +147,24 @@ angular.module('client').factory('guacManageScreen', ['$injector', '$routeParams
      */
     service.getMonitorCount = function getMonitorCount() {
 
+        // No additional monitor
         if (!additionalMonitor)
             return 1;
 
-        else if (additionalMonitor.closed) {
-            service.closeScreen();
+         // Additional monitor found, but window closed
+         else if (additionalMonitor.closed) {
+            service.closeMonitors();
             return 1;
         }
 
+        // More than one monitor
         else
             return 2;
 
     };
 
-    // Close additional screens when window is unloaded
-    $window.addEventListener('unload', service.closeScreen);
+    // Close additional monitors when window is unloaded
+    $window.addEventListener('unload', service.closeMonitors);
 
     return service;
 
