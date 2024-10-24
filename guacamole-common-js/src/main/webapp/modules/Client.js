@@ -324,14 +324,17 @@ Guacamole.Client = function(tunnel) {
      *
      * @param {!number} height
      *     The height of the screen.
+     * 
+     * @param {!number} monitors
+     *     The count of monitors.
      */
-    this.sendSize = function(width, height) {
+    this.sendSize = function sendSize(width, height, monitors) {
 
         // Do not send requests if not connected
         if (!isConnected())
             return;
 
-        tunnel.sendMessage("size", width, height);
+        tunnel.sendMessage("size", width, height, monitors);
 
     };
 
@@ -733,6 +736,19 @@ Guacamole.Client = function(tunnel) {
      *     fire.
      */
     this.onmsg = null;
+
+    /**
+     * Fired when guacd send instructions to transfer them on additional
+     * monitors windows.
+     * 
+     * @event
+     * @param {!string} opcode
+     *     The current operation code.
+     *
+     * @param {*} parameters
+     *     Operation parameters.
+     */
+    this.ondisplayupdate = null;
 
     /**
      * Fired when a user joins a shared connection.
@@ -1816,13 +1832,33 @@ Guacamole.Client = function(tunnel) {
 
     tunnel.oninstruction = function(opcode, parameters) {
 
-        var handler = instructionHandlers[opcode];
-        if (handler)
+        const handler = instructionHandlers[opcode];
+        if (handler) {
             handler(parameters);
+            if (guac_client.ondisplayupdate) guac_client.ondisplayupdate(opcode, parameters);
+        }
 
         // Leverage network activity to ensure the next keep-alive ping is
         // sent, even if the browser is currently throttling timers
         scheduleKeepAlive();
+
+    };
+
+    /**
+     * Run operations requested by additional monitor window.
+     * 
+     * @param {!string} opcode
+     *     The current operation code.
+     *
+     * @param {*} parameters
+     *     Operation parameters.
+     */
+    this.runHandler = function runHandler(opcode, parameters) {
+
+        const handler = instructionHandlers[opcode];
+
+        if (handler)
+            handler(parameters);
 
     };
 

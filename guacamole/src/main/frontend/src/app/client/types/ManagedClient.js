@@ -52,6 +52,7 @@ angular.module('client').factory('ManagedClient', ['$rootScope', '$injector',
     const guacAudio               = $injector.get('guacAudio');
     const guacHistory             = $injector.get('guacHistory');
     const guacImage               = $injector.get('guacImage');
+    const guacManageScreen        = $injector.get('guacManageScreen');
     const guacVideo               = $injector.get('guacVideo');
 
     /**
@@ -654,6 +655,25 @@ angular.module('client').factory('ManagedClient', ['$rootScope', '$injector',
                 });
             });
         };
+        
+        // Update display on other monitors
+        client.ondisplayupdate = async function canvasUpdated(opcode, parameters) {
+
+            // Skip if no other monitor
+            if (guacManageScreen.getMonitorCount() > 1) {
+                const handler = {
+                    'opcode': opcode,
+                    'parameters': parameters,
+                };
+
+                // Send handler
+                guacManageScreen.pushBroadcastMessage('handler', handler);
+            }
+
+        };
+
+        // Set the current client on guacManageScreen service
+        guacManageScreen.setClient(client);
 
         // Manage the client display
         managedClient.managedDisplay = ManagedDisplay.getInstance(client.getDisplay());

@@ -185,49 +185,6 @@
                     </environmentVariables>
                     
                 </configuration>
-
-                <executions>
-
-                    <!-- Install node.js and NPM before running tests or generating documentation -->
-                    <execution>
-                        <id>install-node-and-npm</id>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                    </execution>
-
-                    <!-- Generate documentation using JSDoc -->
-                    <execution>
-                        <id>generate-docs</id>
-                        <goals>
-                            <goal>npx</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <arguments>jsdoc -c jsdoc-conf.json</arguments>
-                        </configuration>
-                    </execution>
-
-                    <!-- Install test and documentation dependencies -->
-                    <execution>
-                        <id>npm-install</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                    </execution>
-
-                    <!-- Run all tests non-interactively -->
-                    <execution>
-                        <id>run-tests</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>karma</goal>
-                        </goals>
-                    </execution>
-
-                </executions>
                 
             </plugin>
 
