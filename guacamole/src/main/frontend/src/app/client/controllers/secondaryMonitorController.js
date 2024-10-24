@@ -20,13 +20,23 @@
 /**
  * The controller for the page used to display secondary monitors.
  */
-angular.module('client').controller('secondaryMonitorController', ['$injector',
-    function clientController($injector) {
+angular.module('client').controller('secondaryMonitorController', ['$scope', '$injector',
+    function clientController($scope, $injector) {
+
+    // Required types
+    const ClipboardData          = $injector.get('ClipboardData');
 
     // Required services
-    const $window = $injector.get('$window');
+    const $window                = $injector.get('$window');
+    const clipboardService       = $injector.get('clipboardService');
+    const guacFullscreen         = $injector.get('guacFullscreen');
 
-    const expected_origin = $window.location.protocol + '//' + $window.location.host;
+    // Broadcast channel
+    const broadcast = new BroadcastChannel('guac_monitors');
+
+    // Display size in pixels
+    let displayWidth = 0;
+    let displayHeight = 0;
 
     // Instantiate client, using an HTTP tunnel for communications.
     const client = new Guacamole.Client(
@@ -34,7 +44,7 @@ angular.module('client').controller('secondaryMonitorController', ['$injector',
     );
 
     const display = client.getDisplay();
-    display.scale(1);
+    //display.scale(1);
     let displayContainer;
 
     setTimeout(function() {
@@ -45,6 +55,9 @@ angular.module('client').controller('secondaryMonitorController', ['$injector',
     
         // Add display element
         displayContainer.appendChild(display.getElement());
+
+        // Ready for resize
+        pushBroadcastMessage('resize', true);
     }, 1000);
     
     // Error handler
@@ -52,100 +65,209 @@ angular.module('client').controller('secondaryMonitorController', ['$injector',
         alert(error);
     };
 
-    // Connect
-    //client.connect();
+    // Send resize on window close
+    $window.addEventListener('unload', function() {pushBroadcastMessage('resize', true);});
 
-    // Disconnect on close
-    /*window.onunload = function() {
-        client.disconnect();
-    }*/
-
-    // Mouse
+    // Mouse and keyboard
     const mouse = new Guacamole.Mouse(client.getDisplay().getElement());
-
-    mouse.onEach(['mousedown', 'mouseup', 'mousemove'], function sendMouseEvent(e) {
-        console.log('mouseState: ' + e.state);
-        //client.sendMouseState(e.state);
-    });
-
-    // Keyboard
     const keyboard = new Guacamole.Keyboard(document);
 
+     // Move mouse on screen and send mouse events to main window
+     mouse.onEach(['mousedown', 'mouseup', 'mousemove'], function sendMouseEvent(e) {
+
+        // Ensure software cursor is shown
+        display.showCursor(true);
+
+        // Update client-side cursor
+        display.moveCursor(
+            Math.floor(e.state.x),
+            Math.floor(e.state.y)
+        );
+
+        // Convert mouse state to serializable object
+        const mouseState = {
+            down: e.state.down,
+            up: e.state.up,
+            left: e.state.left,
+            middle: e.state.middle,
+            right: e.state.right,
+            x: e.state.x + displayWidth, // Add offset on x as first display width
+            y: e.state.y,
+        };
+
+        // Send mouse state to main window
+        pushBroadcastMessage('mouseState', mouseState);
+    });
+
+    // Hide software cursor when mouse leaves display
+    mouse.on('mouseout', function() {
+        if (!display) return;
+        display.showCursor(false);
+    });
+
+    // Handle any received clipboard data
+    client.onclipboard = function clientClipboardReceived(stream, mimetype) {
+
+        let reader;
+
+        // If the received data is text, read it as a simple string
+        if (/^text\//.exec(mimetype)) {
+
+            reader = new Guacamole.StringReader(stream);
+
+            // Assemble received data into a single string
+            let data = '';
+            reader.ontext = function textReceived(text) {
+                data += text;
+            };
+
+            // Set clipboard contents once stream is finished
+            reader.onend = function textComplete() {
+                clipboardService.setClipboard(new ClipboardData({
+                    source : 'secondaryMonitor',
+                    type : mimetype,
+                    data : data
+                }))['catch'](angular.noop);
+            };
+
+        }
+
+        // Otherwise read the clipboard data as a Blob
+        else {
+            reader = new Guacamole.BlobReader(stream, mimetype);
+            reader.onend = function blobComplete() {
+                clipboardService.setClipboard(new ClipboardData({
+                    source : 'secondaryMonitor',
+                    type : mimetype,
+                    data : reader.getBlob()
+                }))['catch'](angular.noop);
+            };
+        }
+
+    };
+
+    // Send keydown events to main window
     keyboard.onkeydown = function (keysym) {
-        console.log('keydown: ' + keysym);
-        //client.sendKeyEvent(1, keysym);
+        pushBroadcastMessage('keydown', keysym);
     };
-    
+
+    // Send keyup events to main window
     keyboard.onkeyup = function (keysym) {
-        console.log('keyup' + keysym);
-        //client.sendKeyEvent(0, keysym);
+        pushBroadcastMessage('keyup', keysym);
     };
 
-    $window.addEventListener('message', function(message) {
+    /**
+     * Push broadcast message containing instructions that allows additional
+     * monitor windows to draw display, resize window and more.
+     * 
+     * @param {!string} type
+     *     The type of message (ex: handler, fullscreen, resize)
+     *
+     * @param {*} content
+     *     The content of the message, can contain any type of serializable
+     *      content.
+     */
+    function pushBroadcastMessage(type, content) {
+        const message = {
+            [type]: content
+        };
 
-        // Security check
-        if (message.origin !== expected_origin)
-            return;
+        broadcast.postMessage(message);
+    };
 
+    /**
+     * Handle messages sent by main window in guac_monitors channel. These
+     * messages contain instructions to draw the screen, resize window, or
+     * request full screen mode.
+     * 
+     * @param {Event} e
+     *     Received message event from guac_monitors channel.
+     */
+    broadcast.onmessage = function broadcastMessage(message) {
+
+        // Run the client handler to draw display
         if (message.data.handler)
             client.runHandler(message.data.handler.opcode,
                               message.data.handler.parameters);
 
+        // Resize display and window with parameters sent by guacd in the size handler
         if (message.data.handler && message.data.handler.opcode === 'size') {
+
+            const default_layer = 0;
+            const layer = parseInt(message.data.handler.parameters[0]);
+
+            // Ignore other layers (ex: mouse) that can have other size
+            if (layer !== default_layer)
+                return;
+
+            // Set the new display size
+            displayWidth  = parseInt(message.data.handler.parameters[1]) / 2;
+            displayHeight = parseInt(message.data.handler.parameters[2]);
+
+            // Get unusable winwow (ex: titlebar) height and width
+            const windowUnusableHeight = $window.outerHeight - $window.innerHeight;
+            const windowUnusableWidth = $window.outerWidth - $window.innerWidth;
+
+            // Remove scrollbars
             document.querySelector('.client-main').style.overflow = 'hidden';
 
-            document.querySelector('.display canvas').style.left = '-' + message.data.handler.parameters[1]/2 + 'px';
-            //displayContainer.style.left = '-' + message.data.handler.parameters.width + 'px';
+            // Show secondary display instead of first
+            document.querySelector('.display canvas').style.left = '-' + displayWidth + 'px';
 
-            const windowUnusableHeight = $window.outerHeight - $window.innerHeight;
-            const windowUnusableWidth = $window.outerWidth - $window.innerWidth;
+            // Resize window to the display size
             $window.resizeTo(
-                parseInt(message.data.handler.parameters[1])/2 + windowUnusableWidth,
-                parseInt(message.data.handler.parameters[2]) + windowUnusableHeight
+                displayWidth + windowUnusableWidth,
+                displayHeight + windowUnusableHeight
             );
 
         }
 
-    });
+        // Full screen mode instructions
+        if (message.data.fullscreen) {
 
-/*    // Canvas
-    const canvas = document.createElement('canvas');
-    canvas.style.top = 0;
-    canvas.style.position = 'absolute';
+            // setFullscreenMode require explicit user action
+            if (message.data.fullscreen !== false)
+                openConsentButton();
 
-    // Append canvas to .viewport
-    setTimeout(function() {
-        document.querySelector('.viewport').appendChild(canvas);
-    }, 1000);
+            // Close fullscreen mode instantly
+            else
+                guacFullscreen.setFullscreenMode(message.data.fullscreen);
 
-    // Draw on canvas
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.onload = function() {
-        ctx.drawImage(img, img.width / 2, 0, img.width / 2, img.height, 0, 0, img.width / 2, img.height);
-    }
-
-    $window.addEventListener('message', function(message) {
-
-        // Security check
-        if (message.origin !== expected_origin)
-            return;
-
-        if (message.data.size) {
-            const windowUnusableHeight = $window.outerHeight - $window.innerHeight;
-            const windowUnusableWidth = $window.outerWidth - $window.innerWidth;
-            $window.resizeTo(
-                parseInt(message.data.size.width)/2 + windowUnusableWidth,
-                parseInt(message.data.size.height) + windowUnusableHeight
-            );
-            canvas.style.left = '0px'; //message.data.size.left;
-            canvas.setAttribute('width', message.data.size.width/2);
-            canvas.setAttribute('height', message.data.size.height);
         }
 
-        if (message.data.canvas)
-            img.src = message.data.canvas;
+    };
 
-    });
-*/
+    /**
+     * Add button to request user consent before enabling fullscreen mode to
+     * comply with the setFullscreenMode requirements that require explicit
+     * user action. The button is removed after a few seconds if the user does
+     * not click on it.
+     */
+    function openConsentButton() {
+
+        // Create the button
+        const consentButton = document.createElement('button');
+
+        // Button attributes
+        consentButton.id = 'consent-fullscreen-button';
+        consentButton.style.position = 'fixed';
+        consentButton.style.zIndex = '2';
+        consentButton.innerHTML = 'Allow fullscreen?'; // replace by translations
+
+        // Add button on the DOM
+        document.body.appendChild(consentButton);
+
+        // User click on button
+        consentButton.onclick = function enableFullscreenMode() {
+            guacFullscreen.setFullscreenMode(true);
+            consentButton.remove();
+        };
+
+        // Auto hide button after delay
+        setTimeout(function() {
+            consentButton.remove();
+        }, 5000);
+
+    };
+
 }]);

@@ -462,7 +462,7 @@ angular.module('client').directive('guacClient', [function guacClient() {
                 const pixelDensity = $window.devicePixelRatio || 1;
                 const width    = main.offsetWidth  * pixelDensity;
                 const height   = main.offsetHeight * pixelDensity;
-                const monitors = guacManageScreen.getScreenCount();
+                const monitors = guacManageScreen.getMonitorCount();
 
                 if (display.getMonitors() !== monitors) {
                     display.updateMonitors(monitors);

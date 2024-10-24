@@ -821,7 +821,7 @@ Guacamole.Display = function() {
      * @param {!number} y
      *     The Y coordinate to move the cursor to.
      */
-    this.moveCursor = function(x, y) {
+    this.moveCursor = function moveCursor(x, y) {
 
         // Move cursor layer
         cursor.translate(x - guac_display.cursorHotspotX,

@@ -738,11 +738,17 @@ Guacamole.Client = function(tunnel) {
     this.onmsg = null;
 
     /**
-     * Fired when canvas was updated.
+     * Fired when guacd send instructions to transfer them on additional
+     * monitors windows.
      * 
      * @event
+     * @param {!string} opcode
+     *     The current operation code.
+     *
+     * @param {*} parameters
+     *     Operation parameters.
      */
-    this.oncanvasupdate = null;
+    this.ondisplayupdate = null;
 
     /**
      * Fired when a user joins a shared connection.
@@ -1829,7 +1835,7 @@ Guacamole.Client = function(tunnel) {
         const handler = instructionHandlers[opcode];
         if (handler) {
             handler(parameters);
-            if (guac_client.oncanvasupdate) guac_client.oncanvasupdate(opcode, parameters);
+            if (guac_client.ondisplayupdate) guac_client.ondisplayupdate(opcode, parameters);
         }
 
         // Leverage network activity to ensure the next keep-alive ping is
@@ -1838,10 +1844,22 @@ Guacamole.Client = function(tunnel) {
 
     };
 
+    /**
+     * Run operations requested by additional monitor window.
+     * 
+     * @param {!string} opcode
+     *     The current operation code.
+     *
+     * @param {*} parameters
+     *     Operation parameters.
+     */
     this.runHandler = function runHandler(opcode, parameters) {
+
         const handler = instructionHandlers[opcode];
+
         if (handler)
             handler(parameters);
+
     };
 
     /**

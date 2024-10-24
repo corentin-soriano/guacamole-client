@@ -656,46 +656,24 @@ angular.module('client').factory('ManagedClient', ['$rootScope', '$injector',
             });
         };
         
-        // Update canvas on other screens
-        client.oncanvasupdate = async function canvasUpdated(opcode, parameters) {
+        // Update display on other monitors
+        client.ondisplayupdate = async function canvasUpdated(opcode, parameters) {
 
-            if (guacManageScreen.getScreenCount() > 1) {
+            // Skip if no other monitor
+            if (guacManageScreen.getMonitorCount() > 1) {
                 const handler = {
                     'opcode': opcode,
                     'parameters': parameters,
                 };
 
-                guacManageScreen.pushContent('handler', handler);
+                // Send handler
+                guacManageScreen.pushBroadcastMessage('handler', handler);
             }
 
         };
 
-
-/*        let lastCanvasUpdateTime = 0;
-        client.oncanvasupdate = async function canvasUpdated() {
-
-            const currentTime = Date.now();
-
-            // Reduce load avg
-            if (currentTime - lastCanvasUpdateTime < 1000)
-                return;
-
-            const display = managedClient.client.getDisplay();
-            const canvas = display.flatten();
-            if (canvas && guacManageScreen.getScreenCount() > 1) {
-
-                const size = {
-                    height: canvas.getAttribute('height'),
-                    width: canvas.getAttribute('width'),
-                    left: '-' + $window.innerWidth + 'px'
-                };
-
-                guacManageScreen.pushContent("size", size);
-                guacManageScreen.pushContent("canvas", canvas.toDataURL());
-
-                lastCanvasUpdateTime = currentTime;
-            }
-        }*/
+        // Set the current client on guacManageScreen service
+        guacManageScreen.setClient(client);
 
         // Manage the client display
         managedClient.managedDisplay = ManagedDisplay.getInstance(client.getDisplay());
