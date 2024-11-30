@@ -159,6 +159,11 @@ Guacamole.Client = function(tunnel) {
     }
 
     /**
+     * Add optional X offset on defaut layer draw actions.
+     */
+    this.offsetX = 0;
+
+    /**
      * Produces an opaque representation of Guacamole.Client state which can be
      * later imported through a call to importState(). This object is
      * effectively an independent, compressed snapshot of protocol and display
@@ -324,14 +329,17 @@ Guacamole.Client = function(tunnel) {
      *
      * @param {!number} height
      *     The height of the screen.
+     * 
+     * @param {!number} monitors
+     *     The count of monitors.
      */
-    this.sendSize = function(width, height) {
+    this.sendSize = function sendSize(width, height, monitors) {
 
         // Do not send requests if not connected
         if (!isConnected())
             return;
 
-        tunnel.sendMessage("size", width, height);
+        tunnel.sendMessage("size", width, height, monitors);
 
     };
 
@@ -735,6 +743,25 @@ Guacamole.Client = function(tunnel) {
     this.onmsg = null;
 
     /**
+     * Fired when the client is disconnected to close all secondary monitor
+     * windows.
+     */
+    this.ondisconnect = null;
+
+    /**
+     * Fired when guacd send instructions to transfer them on additional
+     * monitors windows.
+     * 
+     * @event
+     * @param {!string} opcode
+     *     The current operation code.
+     *
+     * @param {*} parameters
+     *     Operation parameters.
+     */
+    this.ondisplayupdate = null;
+
+    /**
      * Fired when a user joins a shared connection.
      *
      * @event
@@ -1067,13 +1094,15 @@ Guacamole.Client = function(tunnel) {
 
         "arc": function(parameters) {
 
-            var layer = getLayer(parseInt(parameters[0]));
-            var x = parseInt(parameters[1]);
-            var y = parseInt(parameters[2]);
-            var radius = parseInt(parameters[3]);
-            var startAngle = parseFloat(parameters[4]);
-            var endAngle = parseFloat(parameters[5]);
-            var negative = parseInt(parameters[6]);
+            const offsetX = parseInt(parameters[0]) === 0 ? guac_client.offsetX : 0;
+
+            const layer = getLayer(parseInt(parameters[0]));
+            const x = parseInt(parameters[1]) - offsetX;
+            const y = parseInt(parameters[2]);
+            const radius = parseInt(parameters[3]);
+            const startAngle = parseFloat(parameters[4]);
+            const endAngle = parseFloat(parameters[5]);
+            const negative = parseInt(parameters[6]);
 
             display.arc(layer, x, y, radius, startAngle, endAngle, negative != 0);
 
@@ -1211,15 +1240,18 @@ Guacamole.Client = function(tunnel) {
 
         "copy": function(parameters) {
 
-            var srcL = getLayer(parseInt(parameters[0]));
-            var srcX = parseInt(parameters[1]);
-            var srcY = parseInt(parameters[2]);
-            var srcWidth = parseInt(parameters[3]);
-            var srcHeight = parseInt(parameters[4]);
-            var channelMask = parseInt(parameters[5]);
-            var dstL = getLayer(parseInt(parameters[6]));
-            var dstX = parseInt(parameters[7]);
-            var dstY = parseInt(parameters[8]);
+            const srcOffsetX = parseInt(parameters[0]) === 0 ? guac_client.offsetX : 0;
+            const dstOffsetX = parseInt(parameters[6]) === 0 ? guac_client.offsetX : 0;
+
+            const srcL = getLayer(parseInt(parameters[0]));
+            const srcX = parseInt(parameters[1]) - srcOffsetX;
+            const srcY = parseInt(parameters[2]);
+            const srcWidth = parseInt(parameters[3]);
+            const srcHeight = parseInt(parameters[4]);
+            const channelMask = parseInt(parameters[5]);
+            const dstL = getLayer(parseInt(parameters[6]));
+            const dstX = parseInt(parameters[7]) - dstOffsetX;
+            const dstY = parseInt(parameters[8]);
 
             display.setChannelMask(dstL, channelMask);
             display.copy(srcL, srcX, srcY, srcWidth, srcHeight, 
@@ -1246,13 +1278,15 @@ Guacamole.Client = function(tunnel) {
 
         "cursor": function(parameters) {
 
-            var cursorHotspotX = parseInt(parameters[0]);
-            var cursorHotspotY = parseInt(parameters[1]);
-            var srcL = getLayer(parseInt(parameters[2]));
-            var srcX = parseInt(parameters[3]);
-            var srcY = parseInt(parameters[4]);
-            var srcWidth = parseInt(parameters[5]);
-            var srcHeight = parseInt(parameters[6]);
+            const offsetX = parseInt(parameters[2]) === 0 ? guac_client.offsetX : 0;
+
+            const cursorHotspotX = parseInt(parameters[0]);
+            const cursorHotspotY = parseInt(parameters[1]);
+            const srcL = getLayer(parseInt(parameters[2]));
+            const srcX = parseInt(parameters[3]) - offsetX;
+            const srcY = parseInt(parameters[4]);
+            const srcWidth = parseInt(parameters[5]);
+            const srcHeight = parseInt(parameters[6]);
 
             display.setCursor(cursorHotspotX, cursorHotspotY,
                               srcL, srcX, srcY, srcWidth, srcHeight);
@@ -1261,13 +1295,15 @@ Guacamole.Client = function(tunnel) {
 
         "curve": function(parameters) {
 
-            var layer = getLayer(parseInt(parameters[0]));
-            var cp1x = parseInt(parameters[1]);
-            var cp1y = parseInt(parameters[2]);
-            var cp2x = parseInt(parameters[3]);
-            var cp2y = parseInt(parameters[4]);
-            var x = parseInt(parameters[5]);
-            var y = parseInt(parameters[6]);
+            const offsetX = parseInt(parameters[0]) === 0 ? guac_client.offsetX : 0;
+
+            const layer = getLayer(parseInt(parameters[0]));
+            const cp1x = parseInt(parameters[1]);
+            const cp1y = parseInt(parameters[2]);
+            const cp2x = parseInt(parameters[3]);
+            const cp2y = parseInt(parameters[4]);
+            const x = parseInt(parameters[5]) - offsetX;
+            const y = parseInt(parameters[6]);
 
             display.curveTo(layer, cp1x, cp1y, cp2x, cp2y, x, y);
 
@@ -1397,15 +1433,17 @@ Guacamole.Client = function(tunnel) {
 
         "img": function(parameters) {
 
-            var stream_index = parseInt(parameters[0]);
-            var channelMask = parseInt(parameters[1]);
-            var layer = getLayer(parseInt(parameters[2]));
-            var mimetype = parameters[3];
-            var x = parseInt(parameters[4]);
-            var y = parseInt(parameters[5]);
+            const offsetX = parseInt(parameters[2]) === 0 ? guac_client.offsetX : 0;
+
+            const stream_index = parseInt(parameters[0]);
+            const channelMask = parseInt(parameters[1]);
+            const layer = getLayer(parseInt(parameters[2]));
+            const mimetype = parameters[3];
+            const x = parseInt(parameters[4]) - offsetX;
+            const y = parseInt(parameters[5]);
 
             // Create stream
-            var stream = streams[stream_index] = new Guacamole.InputStream(guac_client, stream_index);
+            const stream = streams[stream_index] = new Guacamole.InputStream(guac_client, stream_index);
 
             // Draw received contents once decoded
             display.setChannelMask(layer, channelMask);
@@ -1415,11 +1453,13 @@ Guacamole.Client = function(tunnel) {
 
         "jpeg": function(parameters) {
 
-            var channelMask = parseInt(parameters[0]);
-            var layer = getLayer(parseInt(parameters[1]));
-            var x = parseInt(parameters[2]);
-            var y = parseInt(parameters[3]);
-            var data = parameters[4];
+            const offsetX = parseInt(parameters[1]) === 0 ? guac_client.offsetX : 0;
+
+            const channelMask = parseInt(parameters[0]);
+            const layer = getLayer(parseInt(parameters[1]));
+            const x = parseInt(parameters[2]) - offsetX;
+            const y = parseInt(parameters[3]);
+            const data = parameters[4];
 
             display.setChannelMask(layer, channelMask);
             display.draw(layer, x, y, "data:image/jpeg;base64," + data);
@@ -1439,9 +1479,11 @@ Guacamole.Client = function(tunnel) {
 
         "line": function(parameters) {
 
-            var layer = getLayer(parseInt(parameters[0]));
-            var x = parseInt(parameters[1]);
-            var y = parseInt(parameters[2]);
+            const offsetX = parseInt(parameters[0]) === 0 ? guac_client.offsetX : 0;
+
+            const layer = getLayer(parseInt(parameters[0]));
+            const x = parseInt(parameters[1]) - offsetX;
+            const y = parseInt(parameters[2]);
 
             display.lineTo(layer, x, y);
 
@@ -1460,8 +1502,8 @@ Guacamole.Client = function(tunnel) {
 
         "mouse" : function handleMouse(parameters) {
 
-            var x = parseInt(parameters[0]);
-            var y = parseInt(parameters[1]);
+            const x = parseInt(parameters[0]) - guac_client.offsetX;
+            const y = parseInt(parameters[1]);
 
             // Display and move software cursor to received coordinates
             display.showCursor(true);
@@ -1553,11 +1595,13 @@ Guacamole.Client = function(tunnel) {
 
         "png": function(parameters) {
 
-            var channelMask = parseInt(parameters[0]);
-            var layer = getLayer(parseInt(parameters[1]));
-            var x = parseInt(parameters[2]);
-            var y = parseInt(parameters[3]);
-            var data = parameters[4];
+            const offsetX = parseInt(parameters[1]) === 0 ? guac_client.offsetX : 0;
+
+            const channelMask = parseInt(parameters[0]);
+            const layer = getLayer(parseInt(parameters[1]));
+            const x = parseInt(parameters[2]) - offsetX;
+            const y = parseInt(parameters[3]);
+            const data = parameters[4];
 
             display.setChannelMask(layer, channelMask);
             display.draw(layer, x, y, "data:image/png;base64," + data);
@@ -1582,11 +1626,13 @@ Guacamole.Client = function(tunnel) {
  
         "rect": function(parameters) {
 
-            var layer = getLayer(parseInt(parameters[0]));
-            var x = parseInt(parameters[1]);
-            var y = parseInt(parameters[2]);
-            var w = parseInt(parameters[3]);
-            var h = parseInt(parameters[4]);
+            const offsetX = parseInt(parameters[0]) === 0 ? guac_client.offsetX : 0;
+
+            const layer = getLayer(parseInt(parameters[0]));
+            const x = parseInt(parameters[1]) - offsetX;
+            const y = parseInt(parameters[2]);
+            const w = parseInt(parameters[3]);
+            const h = parseInt(parameters[4]);
 
             display.rect(layer, x, y, w, h);
 
@@ -1643,9 +1689,11 @@ Guacamole.Client = function(tunnel) {
         
         "start": function(parameters) {
 
-            var layer = getLayer(parseInt(parameters[0]));
-            var x = parseInt(parameters[1]);
-            var y = parseInt(parameters[2]);
+            const offsetX = parseInt(parameters[0]) === 0 ? guac_client.offsetX : 0;
+
+            const layer = getLayer(parseInt(parameters[0]));
+            const x = parseInt(parameters[0]) - offsetX;
+            const y = parseInt(parameters[2]);
 
             display.moveTo(layer, x, y);
 
@@ -1686,15 +1734,18 @@ Guacamole.Client = function(tunnel) {
 
         "transfer": function(parameters) {
 
-            var srcL = getLayer(parseInt(parameters[0]));
-            var srcX = parseInt(parameters[1]);
-            var srcY = parseInt(parameters[2]);
-            var srcWidth = parseInt(parameters[3]);
-            var srcHeight = parseInt(parameters[4]);
-            var function_index = parseInt(parameters[5]);
-            var dstL = getLayer(parseInt(parameters[6]));
-            var dstX = parseInt(parameters[7]);
-            var dstY = parseInt(parameters[8]);
+            const srcOffsetX = parseInt(parameters[0]) === 0 ? guac_client.offsetX : 0;
+            const dstOffsetX = parseInt(parameters[6]) === 0 ? guac_client.offsetX : 0;
+
+            const srcL = getLayer(parseInt(parameters[0]));
+            const srcX = parseInt(parameters[1]) - srcOffsetX;
+            const srcY = parseInt(parameters[2]);
+            const srcWidth = parseInt(parameters[3]);
+            const srcHeight = parseInt(parameters[4]);
+            const function_index = parseInt(parameters[5]);
+            const dstL = getLayer(parseInt(parameters[6]));
+            const dstX = parseInt(parameters[7]) - dstOffsetX;
+            const dstY = parseInt(parameters[8]);
 
             /* SRC */
             if (function_index === 0x3)
@@ -1816,13 +1867,33 @@ Guacamole.Client = function(tunnel) {
 
     tunnel.oninstruction = function(opcode, parameters) {
 
-        var handler = instructionHandlers[opcode];
-        if (handler)
-            handler(parameters);
+        // Send instruction to other monitors windows
+        if (guac_client.ondisplayupdate) guac_client.ondisplayupdate(opcode, parameters);
+
+        // Run requested handler
+        guac_client.runHandler(opcode, parameters);
 
         // Leverage network activity to ensure the next keep-alive ping is
         // sent, even if the browser is currently throttling timers
         scheduleKeepAlive();
+
+    };
+
+    /**
+     * Run operations requested by guacd.
+     * 
+     * @param {!string} opcode
+     *     The current operation code.
+     *
+     * @param {*} parameters
+     *     Operation parameters.
+     */
+    this.runHandler = function runHandler(opcode, parameters) {
+
+        const handler = instructionHandlers[opcode];
+
+        if (handler)
+            handler(parameters);
 
     };
 
@@ -1844,6 +1915,8 @@ Guacamole.Client = function(tunnel) {
             tunnel.sendMessage("disconnect");
             tunnel.disconnect();
             setState(Guacamole.Client.State.DISCONNECTED);
+
+            if (guac_client.ondisconnect) guac_client.ondisconnect();
 
         }
 
