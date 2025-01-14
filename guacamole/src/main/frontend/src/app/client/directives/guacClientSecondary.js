@@ -181,15 +181,6 @@ angular.module('client').directive('guacClientSecondary', [function guacClient()
                 Math.floor(e.state.y / guacManageMonitor.monitorAttributes.currentScaling)
             );
 
-            // Limit mouse move events to reduce latency
-            if (mouseState.lastPush && Date.now() - mouseState.lastPush < 100
-                    && mouseState.down === e.state.down
-                    && mouseState.up === e.state.up
-                    && mouseState.left === e.state.left
-                    && mouseState.middle === e.state.middle
-                    && mouseState.right === e.state.right)
-                return;
-
             // Click on actual display instead of the first
             const displayOffset = guacManageMonitor.monitorAttributes.width * guacManageMonitor.monitorAttributes.position;
 
@@ -201,7 +192,6 @@ angular.module('client').directive('guacClientSecondary', [function guacClient()
             mouseState.right = e.state.right;
             mouseState.x = e.state.x / guacManageMonitor.monitorAttributes.currentScaling + displayOffset;
             mouseState.y = e.state.y / guacManageMonitor.monitorAttributes.currentScaling;
-            mouseState.lastPush = Date.now();
 
             // Send mouse state to main window
             guacManageMonitor.pushBroadcastMessage('mouseState', mouseState);
