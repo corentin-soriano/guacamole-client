@@ -38,6 +38,7 @@ Guacamole.Display = function() {
 
     var displayWidth = 0;
     var displayHeight = 0;
+    var displayMonitors = 1;
     var displayScale = 1;
 
     // Create display
@@ -186,19 +187,6 @@ Guacamole.Display = function() {
     var frames = [];
 
     /**
-     * The ID of the animation frame request returned by the last call to
-     * requestAnimationFrame(). This value will only be set if the browser
-     * supports requestAnimationFrame(), if a frame render is currently
-     * pending, and if the current browser tab is currently focused (likely to
-     * handle requests for animation frames). In all other cases, this will be
-     * null.
-     *
-     * @private
-     * @type {number}
-     */
-    var inProgressFrame = null;
-
-    /**
      * Flushes all pending frames synchronously. This function will block until
      * all pending frames have rendered. If a frame is currently blocked by an
      * asynchronous operation like an image load, this function will return
@@ -236,45 +224,6 @@ Guacamole.Display = function() {
 
         if (rendered_frames)
             notifyFlushed(localTimestamp, remoteTimestamp, renderedLogicalFrames);
-
-    };
-
-    /**
-     * Flushes all pending frames asynchronously. This function returns
-     * immediately, relying on requestAnimationFrame() to dictate when each
-     * frame should be flushed.
-     *
-     * @private
-     */
-    var asyncFlush = function asyncFlush() {
-
-        var continueFlush = function continueFlush() {
-
-            // We're no longer waiting to render a frame
-            inProgressFrame = null;
-
-            // Nothing to do if there are no frames remaining
-            if (!frames.length)
-                return;
-
-            // Flush the next frame only if it is ready (not awaiting
-            // completion of some asynchronous operation like an image load)
-            if (frames[0].isReady()) {
-                var frame = frames.shift();
-                frame.flush();
-                notifyFlushed(frame.localTimestamp, frame.remoteTimestamp, frame.logicalFrames);
-            }
-
-            // Request yet another animation frame if frames remain to be
-            // flushed
-            if (frames.length)
-                inProgressFrame = window.requestAnimationFrame(continueFlush);
-
-        };
-
-        // Begin flushing frames if not already waiting to render a frame
-        if (!inProgressFrame)
-            inProgressFrame = window.requestAnimationFrame(continueFlush);
 
     };
 
@@ -373,33 +322,12 @@ Guacamole.Display = function() {
 
     };
 
-    // Switch from asynchronous frame handling to synchronous frame handling if
-    // requestAnimationFrame() is unlikely to be usable (browsers may not
-    // invoke the animation frame callback if the relevant tab is not focused)
-    window.addEventListener('blur', function switchToSyncFlush() {
-        if (inProgressFrame && !document.hasFocus()) {
-
-            // Cancel pending asynchronous processing of frame ...
-            window.cancelAnimationFrame(inProgressFrame);
-            inProgressFrame = null;
-
-            // ... and instead process it synchronously
-            syncFlush();
-
-        }
-    }, true);
-
     /**
      * Flushes all pending frames.
      * @private
      */
     function __flush_frames() {
-
-        if (window.requestAnimationFrame && document.hasFocus())
-            asyncFlush();
-        else
-            syncFlush();
-
+        syncFlush();
     }
 
     /**
@@ -621,6 +549,16 @@ Guacamole.Display = function() {
     };
 
     /**
+     * Returns the number of monitors.
+     * 
+     * @return {!number}
+     *     The number of monitors.
+     */
+    this.getMonitors = function getMonitors() {
+        return displayMonitors;
+    };
+
+    /**
      * Returns the default layer of this display. Each Guacamole display always
      * has at least one layer. Other layers can optionally be created within
      * this layer, but the default layer cannot be removed and is the absolute
@@ -810,7 +748,7 @@ Guacamole.Display = function() {
      * @param {!number} y
      *     The Y coordinate to move the cursor to.
      */
-    this.moveCursor = function(x, y) {
+    this.moveCursor = function moveCursor(x, y) {
 
         // Move cursor layer
         cursor.translate(x - guac_display.cursorHotspotX,
@@ -821,6 +759,16 @@ Guacamole.Display = function() {
         guac_display.cursorY = y;
 
     };
+
+    /**
+     * Change the number of monitors.
+     * 
+     * @param {!number} monitors
+     *     The number of monitors.
+     */
+    this.updateMonitors = function updateMonitors(monitors) {
+        displayMonitors = monitors;
+    }
 
     /**
      * Changes the size of the given Layer to the given width and height.
@@ -838,6 +786,9 @@ Guacamole.Display = function() {
      */
     this.resize = function(layer, width, height) {
         scheduleTask(function __display_resize() {
+
+            // Adjust width when using multiple monitors
+            width = width / displayMonitors;
 
             layer.resize(width, height);
 

@@ -25,6 +25,9 @@
 angular.module('client').factory('guacFullscreen', ['$injector', 
         function guacFullscreen($injector) {
 
+    // Required services
+    const guacManageMonitor  = $injector.get('guacManageMonitor');
+
     var service = {};
 
     // check is browser in true fullscreen mode
@@ -36,9 +39,12 @@ angular.module('client').factory('guacFullscreen', ['$injector',
     service.setFullscreenMode = function setFullscreenMode(state) {
         if (document.fullscreenEnabled) {
             if (state && !service.isInFullscreenMode())
-                document.documentElement.requestFullscreen().then(navigator.keyboard.lock()); 
+                document.documentElement.requestFullscreen().then(navigator.keyboard.lock());
             else if (!state && service.isInFullscreenMode())
-                document.exitFullscreen().then(navigator.keyboard.unlock()); 
+                document.exitFullscreen().then(navigator.keyboard.unlock());
+
+            // Send instruction to other monitors
+            guacManageMonitor.pushBroadcastMessage('fullscreen', state);
         }
     }
 
