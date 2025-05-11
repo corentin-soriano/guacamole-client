@@ -26,16 +26,43 @@ const DependencyListPlugin = require('./plugins/dependency-list-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const webpack = require('webpack');
+const path = require('path');
+
+// cd guacamole/src/main/frontend/
+// npm install -D webpack-cli webpack-dev-server
+// NODE_OPTIONS=--openssl-legacy-provider npx webpack serve
 
 module.exports = {
 
     bail: true,
-    mode: 'production',
+    mode: 'development',
     stats: 'minimal',
 
     output: {
         path: __dirname + '/dist',
-        filename: 'guacamole.[contenthash].js',
+        filename: 'guacamole.[hash].js',
+    },
+
+    devServer: {
+        static: {
+            directory: path.resolve(__dirname, '../../../../guacamole-common-js/src/main/webapp/modules/'),
+            publicPath: '/guacamole-common-js',
+        },
+        proxy: {
+            '/api': {
+                target: 'https://wsl.maincare.dev/guacamole',
+                changeOrigin: true,
+                pathRewrite: { '^/api': '/api' },
+                secure: true
+            },
+            '/websocket-tunnel': {
+                target: 'wss://wsl.maincare.dev/guacamole',
+                ws: true,
+                changeOrigin: true,
+                pathRewrite: { '^/websocket-tunnel': '/websocket-tunnel' },
+                secure: true
+            },
+        }
     },
 
     // Generate source maps
@@ -93,6 +120,7 @@ module.exports = {
         ]
     },
     optimization: {
+        minimize: false,
         minimizer: [
 
             // Minify using Google Closure Compiler
