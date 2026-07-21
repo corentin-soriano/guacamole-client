@@ -64,12 +64,14 @@
     "CLIENT" : {
 
         "ACTION_ACKNOWLEDGE"               : "@:APP.ACTION_ACKNOWLEDGE",
+        "ACTION_ADD_MONITOR"               : "Add an additional screen",
         "ACTION_CANCEL"                    : "@:APP.ACTION_CANCEL",
         "ACTION_CLEAR_CLIENT_MESSAGES"     : "@:APP.ACTION_CLEAR",
         "ACTION_CLEAR_COMPLETED_TRANSFERS" : "@:APP.ACTION_CLEAR",
         "ACTION_CONTINUE"                  : "@:APP.ACTION_CONTINUE",
         "ACTION_DISCONNECT"                : "Disconnect",
         "ACTION_FULLSCREEN"                : "Fullscreen",
+        "ACTION_FULLSCREEN_CONSENT"        : "Would you like to enable full screen?",
         "ACTION_LOGOUT"                    : "@:APP.ACTION_LOGOUT",
         "ACTION_NAVIGATE_BACK"             : "@:APP.ACTION_NAVIGATE_BACK",
         "ACTION_NAVIGATE_HOME"             : "@:APP.ACTION_NAVIGATE_HOME",
@@ -86,6 +88,7 @@
         "ERROR_CLIENT_201"     : "This connection has been closed because the server is busy. Please wait a few minutes and try again.",
         "ERROR_CLIENT_202"     : "The Guacamole server has closed the connection because the remote desktop is taking too long to respond. Please try again or contact your system administrator.",
         "ERROR_CLIENT_203"     : "The remote desktop server encountered an error and has closed the connection. Please try again or contact your system administrator.",
+        "ERROR_CLIENT_205"     : "This connection requires a resource that is currently in use, but shared access to that resource is either not possible or not permitted. Please try again later.",
         "ERROR_CLIENT_207"     : "The remote desktop server is currently unreachable. If the problem persists, please notify your system administrator, or check your system logs.",
         "ERROR_CLIENT_208"     : "The remote desktop server is currently unavailable. If the problem persists, please notify your system administrator, or check your system logs.",
         "ERROR_CLIENT_209"     : "The remote desktop server has closed the connection because it conflicts with another connection. Please try again later.",
@@ -156,6 +159,7 @@
         "SECTION_HEADER_INPUT_METHOD"    : "Input method",
         
         "SECTION_HEADER_MOUSE_MODE"     : "Mouse emulation mode",
+        "SECTION_HEADER_MULTI_MONITOR"  : "Multi-screen",
 
         "TEXT_ANONYMOUS_USER_JOINED"      : "An anonymous user has joined the connection.",
         "TEXT_ANONYMOUS_USER_LEFT"        : "An anonymous user has left the connection.",
@@ -230,6 +234,7 @@
 
         "FIELD_PLACEHOLDER_FILTER" : "@:APP.FIELD_PLACEHOLDER_FILTER",
 
+        "FIELD_HEADER_CREATE_MISSING_GROUPS"    : "Automatically create groups",
         "FIELD_HEADER_EXISTING_CONNECTION_MODE" : "Replace/Update existing connections",
         "FIELD_HEADER_EXISTING_PERMISSION_MODE" : "Reset permissions",
 
@@ -241,6 +246,7 @@
         "HELP_JSON_DESCRIPTION"             : "A connection import JSON file is a list of connection objects. At minimum the connection name and protocol must be specified in each connection object.",
         "HELP_JSON_EXAMPLE"                 : "[\n  \\{\n    \"name\": \"conn1\",\n    \"protocol\": \"vnc\",\n    \"parameters\": \\{ \"username\": \"alice\", \"password\": \"pass1\", \"hostname\": \"conn1.web.com\" \\},\n    \"parentIdentifier\": \"ROOT\",\n    \"users\": [ \"guac user 1\", \"guac user 2\" ],\n    \"groups\": [ \"Connection 1 Users\" ],\n    \"attributes\": \\{ \"guacd-encryption\": \"none\" \\}\n  \\},\n  \\{\n    \"name\": \"conn2\",\n    \"protocol\": \"rdp\",\n    \"parameters\": \\{ \"username\": \"bob\", \"password\": \"pass2\", \"hostname\": \"conn2.web.com\" \\},\n    \"group\": \"ROOT/Parent Group\",\n    \"users\": [ \"guac user 1\" ],\n    \"attributes\": \\{ \"guacd-encryption\": \"none\" \\}\n  \\},\n  \\{\n    \"name\": \"conn3\",\n    \"protocol\": \"ssh\",\n    \"parameters\": \\{ \"username\": \"carol\", \"password\": \"pass3\", \"hostname\": \"conn3.web.com\" \\},\n    \"group\": \"ROOT/Parent Group/Child Group\",\n    \"users\": [ \"guac user 2\", \"guac user 3\" ]\n  \\},\n  \\{\n    \"name\": \"conn4\",\n    \"protocol\": \"kubernetes\"\n  \\}\n]",
         "HELP_JSON_MORE_DETAILS"            : "The connection group ID that the connection should be imported into may be directly specified with a \"parentIdentifier\" field, or the path to the parent group may be specified using a \"group\" field as shown below. An array of user and user group identifiers to grant access to may be specified per connection.",
+        "HELP_CREATE_MISSING_GROUPS"        : "Automatically create any connection groups specified in the import file that do not already exist. If unchecked, any connection referencing a parent group that cannot be found will be considered an error and will not be imported. If creation fails partway through, any groups already created are left in place; re-importing will reuse them.",
         "HELP_EXISTING_CONNECTION_MODE"     : "Entirely replace/update existing connections if their names and parent connection groups match the values in the provided file. If unchecked, attempting to import a connection with the same name and parent connection group of an existing connection will be considered an error.",
         "HELP_EXISTING_PERMISSION_MODE"     : "Fully reset the permissions granted for all connections in the provided file to the permissions specified in that file. If no permissions are specified, all relevant connection permissions will be revoked. If unchecked, existing permissions are preserved, and any permissions specified in the file will be added.",
         "HELP_SEMICOLON_FOOTNOTE"           : "If present, semicolons can be escaped with a backslash, e.g. \"first\\\\;last\"",
@@ -486,6 +492,7 @@
     "PLAYER" : {
 
         "ACTION_CANCEL"       : "@:APP.ACTION_CANCEL",
+        "ACTION_CLOSE"        : "Close",
         "ACTION_PAUSE"        : "@:APP.ACTION_PAUSE",
         "ACTION_PLAY"         : "@:APP.ACTION_PLAY",
         "ACTION_SHOW_KEY_LOG" : "Keystroke Log",
@@ -507,6 +514,7 @@
         "FIELD_HEADER_CA_CERT"         : "Certificate authority certificate:",
         "FIELD_HEADER_CLIENT_CERT"     : "Client certificate:",
         "FIELD_HEADER_CLIENT_KEY"      : "Client key:",
+        "FIELD_HEADER_CLIPBOARD_BUFFER_SIZE" : "Clipboard data size limit:",
         "FIELD_HEADER_COLOR_SCHEME"    : "Color scheme:",
         "FIELD_HEADER_CONTAINER"       : "Container name:",
         "FIELD_HEADER_CREATE_RECORDING_PATH"  : "Automatically create recording path:",
@@ -516,6 +524,7 @@
         "FIELD_HEADER_EXEC_COMMAND"    : "Command (exec):",
         "FIELD_HEADER_FONT_NAME"       : "Font name:",
         "FIELD_HEADER_FONT_SIZE"       : "Font size:",
+        "FIELD_HEADER_FUNC_KEYS_AND_KEYPAD" : "Function keys and keypad behavior:",
         "FIELD_HEADER_HOSTNAME"        : "Hostname:",
         "FIELD_HEADER_IGNORE_CERT"     : "Ignore server certificate:",
         "FIELD_HEADER_NAMESPACE"       : "Namespace:",
@@ -526,9 +535,12 @@
         "FIELD_HEADER_RECORDING_EXCLUDE_MOUSE"  : "Exclude mouse:",
         "FIELD_HEADER_RECORDING_EXCLUDE_OUTPUT" : "Exclude graphics/streams:",
         "FIELD_HEADER_RECORDING_INCLUDE_KEYS"   : "Include key events:",
+        "FIELD_HEADER_RECORDING_INCLUDE_CLIPBOARD" : "Include clipboard events:",
         "FIELD_HEADER_RECORDING_NAME"  : "Recording name:",
         "FIELD_HEADER_RECORDING_PATH"  : "Recording path:",
         "FIELD_HEADER_SCROLLBACK"      : "Maximum scrollback size:",
+        "FIELD_HEADER_TERMINAL_TYPE"        : "Terminal type (available as $TERM in command):",
+        "FIELD_HEADER_TERMINAL_TYPE_ATTACH" : "Terminal type (set manually in session):",
         "FIELD_HEADER_TYPESCRIPT_NAME" : "Typescript name:",
         "FIELD_HEADER_TYPESCRIPT_PATH" : "Typescript path:",
         "FIELD_HEADER_TYPESCRIPT_WRITE_EXISTING" : "@:APP.FIELD_HEADER_TYPESCRIPT_WRITE_EXISTING",
@@ -537,6 +549,11 @@
         "FIELD_OPTION_BACKSPACE_EMPTY" : "",
         "FIELD_OPTION_BACKSPACE_8"     : "Backspace (Ctrl-H)",
         "FIELD_OPTION_BACKSPACE_127"   : "Delete (Ctrl-?)",
+
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_EMPTY"    : "",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_262144"   : "256KB",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_1048576"  : "1MB",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_10485760" : "10MB",
 
         "FIELD_OPTION_COLOR_SCHEME_BLACK_WHITE" : "Black on white",
         "FIELD_OPTION_COLOR_SCHEME_EMPTY"       : "",
@@ -560,6 +577,18 @@
         "FIELD_OPTION_FONT_SIZE_96"    : "96",
         "FIELD_OPTION_FONT_SIZE_EMPTY" : "",
 
+        "FIELD_OPTION_FUNC_KEYS_AND_KEYPAD_EMPTY" : "",
+        "FIELD_OPTION_FUNC_KEYS_AND_KEYPAD_ESC"   : "ESC[n~",
+        "FIELD_OPTION_FUNC_KEYS_AND_KEYPAD_VT100" : "VT100",
+
+        "FIELD_OPTION_TERMINAL_TYPE_ANSI"           : "ansi",
+        "FIELD_OPTION_TERMINAL_TYPE_EMPTY"          : "",
+        "FIELD_OPTION_TERMINAL_TYPE_LINUX"          : "linux",
+        "FIELD_OPTION_TERMINAL_TYPE_VT100"          : "vt100",
+        "FIELD_OPTION_TERMINAL_TYPE_VT220"          : "vt220",
+        "FIELD_OPTION_TERMINAL_TYPE_XTERM"          : "xterm",
+        "FIELD_OPTION_TERMINAL_TYPE_XTERM_256COLOR" : "xterm-256color",
+
         "NAME" : "Kubernetes",
 
         "SECTION_HEADER_AUTHENTICATION" : "Authentication",
@@ -578,6 +607,7 @@
         "FIELD_HEADER_CERT_TOFU"             : "Trust host certificate on first use:",
         "FIELD_HEADER_CERT_FINGERPRINTS"     : "Fingerprints of trusted host certificates:",
         "FIELD_HEADER_CLIENT_NAME"           : "Client name:",
+        "FIELD_HEADER_CLIPBOARD_BUFFER_SIZE" : "Clipboard data size limit:",
         "FIELD_HEADER_COLOR_DEPTH"           : "Color depth:",
         "FIELD_HEADER_CONSOLE"               : "Administrator console:",
         "FIELD_HEADER_CONSOLE_AUDIO"         : "Support audio in console:",
@@ -626,19 +656,21 @@
         "FIELD_HEADER_PRECONNECTION_BLOB" : "Preconnection BLOB (VM ID):",
         "FIELD_HEADER_PRECONNECTION_ID"   : "RDP source ID:",
         "FIELD_HEADER_READ_ONLY"      : "Read-only:",
-        "FIELD_HEADER_RECORDING_WRITE_EXISTING" : "@:APP.FIELD_HEADER_RECORDING_WRITE_EXISTING",
-        "FIELD_HEADER_RECORDING_EXCLUDE_MOUSE"  : "Exclude mouse:",
-        "FIELD_HEADER_RECORDING_EXCLUDE_OUTPUT" : "Exclude graphics/streams:",
-        "FIELD_HEADER_RECORDING_EXCLUDE_TOUCH"  : "Exclude touch events:",
-        "FIELD_HEADER_RECORDING_INCLUDE_KEYS"   : "Include key events:",
-        "FIELD_HEADER_RECORDING_NAME" : "Recording name:",
-        "FIELD_HEADER_RECORDING_PATH" : "Recording path:",
-        "FIELD_HEADER_RESIZE_METHOD" : "Resize method:",
-        "FIELD_HEADER_REMOTE_APP_ARGS" : "Parameters:",
-        "FIELD_HEADER_REMOTE_APP_DIR"  : "Working directory:",
-        "FIELD_HEADER_REMOTE_APP"      : "Program:",
-        "FIELD_HEADER_SECURITY"        : "Security mode:",
-        "FIELD_HEADER_SERVER_LAYOUT"   : "Keyboard layout:",
+        "FIELD_HEADER_RECORDING_WRITE_EXISTING"    : "@:APP.FIELD_HEADER_RECORDING_WRITE_EXISTING",
+        "FIELD_HEADER_RECORDING_EXCLUDE_MOUSE"     : "Exclude mouse:",
+        "FIELD_HEADER_RECORDING_EXCLUDE_OUTPUT"    : "Exclude graphics/streams:",
+        "FIELD_HEADER_RECORDING_EXCLUDE_TOUCH"     : "Exclude touch events:",
+        "FIELD_HEADER_RECORDING_INCLUDE_KEYS"      : "Include key events:",
+        "FIELD_HEADER_RECORDING_INCLUDE_CLIPBOARD" : "Include clipboard events:",
+        "FIELD_HEADER_RECORDING_NAME"              : "Recording name:",
+        "FIELD_HEADER_RECORDING_PATH"              : "Recording path:",
+        "FIELD_HEADER_RESIZE_METHOD"               : "Resize method:",
+        "FIELD_HEADER_REMOTE_APP_ARGS"             : "Parameters:",
+        "FIELD_HEADER_REMOTE_APP_DIR"              : "Working directory:",
+        "FIELD_HEADER_REMOTE_APP"                  : "Program:",
+        "FIELD_HEADER_SECONDARY_MONITORS"          : "Maximum secondary monitors (needs display-update):",
+        "FIELD_HEADER_SECURITY"                    : "Security mode:",
+        "FIELD_HEADER_SERVER_LAYOUT"               : "Keyboard layout:",
         "FIELD_HEADER_SFTP_DIRECTORY"             : "Default upload directory:",
         "FIELD_HEADER_SFTP_DISABLE_DOWNLOAD"      : "Disable file download:",
         "FIELD_HEADER_SFTP_DISABLE_UPLOAD"        : "Disable file upload:",
@@ -664,6 +696,12 @@
         "FIELD_HEADER_WOL_UDP_PORT"       : "UDP port for WoL packet: ",
         "FIELD_HEADER_WOL_WAIT_TIME"      : "Host boot wait time:",
 
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_EMPTY"    : "",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_262144"   : "256KB",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_1048576"  : "1MB",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_10485760" : "10MB",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_52428800" : "50MB",
+
         "FIELD_OPTION_NORMALIZE_CLIPBOARD_EMPTY"    : "",
         "FIELD_OPTION_NORMALIZE_CLIPBOARD_PRESERVE" : "Preserve as-is",
         "FIELD_OPTION_NORMALIZE_CLIPBOARD_UNIX"     : "Linux/Mac/Unix (LF)",
@@ -686,6 +724,7 @@
         "FIELD_OPTION_SECURITY_TLS"   : "TLS encryption",
         "FIELD_OPTION_SECURITY_VMCONNECT" : "Hyper-V / VMConnect",
 
+        "FIELD_OPTION_SERVER_LAYOUT_CS_CZ_QWERTZ" : "Czech (Qwertz)",
         "FIELD_OPTION_SERVER_LAYOUT_DA_DK_QWERTY" : "Danish (Qwerty)",
         "FIELD_OPTION_SERVER_LAYOUT_DE_CH_QWERTZ" : "Swiss German (Qwertz)",
         "FIELD_OPTION_SERVER_LAYOUT_DE_DE_QWERTZ" : "German (Qwertz)",
@@ -732,6 +771,7 @@
     "PROTOCOL_SSH" : {
 
         "FIELD_HEADER_BACKSPACE"    : "Backspace key sends:",
+        "FIELD_HEADER_CLIPBOARD_BUFFER_SIZE" : "Clipboard data size limit:",
         "FIELD_HEADER_COLOR_SCHEME" : "Color scheme:",
         "FIELD_HEADER_COMMAND"      : "Execute command:",
         "FIELD_HEADER_CREATE_RECORDING_PATH" : "Automatically create recording path:",
@@ -740,6 +780,7 @@
         "FIELD_HEADER_DISABLE_PASTE" : "Disable pasting from client:",
         "FIELD_HEADER_FONT_NAME"     : "Font name:",
         "FIELD_HEADER_FONT_SIZE"     : "Font size:",
+        "FIELD_HEADER_FUNC_KEYS_AND_KEYPAD" : "Function keys and keypad behavior:",
         "FIELD_HEADER_ENABLE_SFTP"   : "Enable SFTP:",
         "FIELD_HEADER_HOST_KEY"      : "Public host key (Base64):",
         "FIELD_HEADER_HOSTNAME"      : "Hostname:",
@@ -756,6 +797,7 @@
         "FIELD_HEADER_RECORDING_EXCLUDE_MOUSE"  : "Exclude mouse:",
         "FIELD_HEADER_RECORDING_EXCLUDE_OUTPUT" : "Exclude graphics/streams:",
         "FIELD_HEADER_RECORDING_INCLUDE_KEYS"   : "Include key events:",
+        "FIELD_HEADER_RECORDING_INCLUDE_CLIPBOARD" : "Include clipboard events:",
         "FIELD_HEADER_RECORDING_NAME" : "Recording name:",
         "FIELD_HEADER_RECORDING_PATH" : "Recording path:",
         "FIELD_HEADER_SERVER_ALIVE_INTERVAL" : "Server keepalive interval:",
@@ -778,6 +820,11 @@
         "FIELD_OPTION_BACKSPACE_8"     : "Backspace (Ctrl-H)",
         "FIELD_OPTION_BACKSPACE_127"   : "Delete (Ctrl-?)",
 
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_EMPTY"    : "",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_262144"   : "256KB",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_1048576"  : "1MB",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_10485760" : "10MB",
+
         "FIELD_OPTION_COLOR_SCHEME_BLACK_WHITE" : "Black on white",
         "FIELD_OPTION_COLOR_SCHEME_EMPTY"       : "",
         "FIELD_OPTION_COLOR_SCHEME_GRAY_BLACK"  : "Gray on black",
@@ -799,6 +846,10 @@
         "FIELD_OPTION_FONT_SIZE_72"    : "72",
         "FIELD_OPTION_FONT_SIZE_96"    : "96",
         "FIELD_OPTION_FONT_SIZE_EMPTY" : "",
+
+        "FIELD_OPTION_FUNC_KEYS_AND_KEYPAD_EMPTY" : "",
+        "FIELD_OPTION_FUNC_KEYS_AND_KEYPAD_ESC"   : "ESC[n~",
+        "FIELD_OPTION_FUNC_KEYS_AND_KEYPAD_VT100" : "VT100",
 
         "FIELD_OPTION_TERMINAL_TYPE_ANSI"           : "ansi",
         "FIELD_OPTION_TERMINAL_TYPE_EMPTY"          : "",
@@ -826,6 +877,7 @@
     "PROTOCOL_TELNET" : {
 
         "FIELD_HEADER_BACKSPACE"      : "Backspace key sends:",
+        "FIELD_HEADER_CLIPBOARD_BUFFER_SIZE" : "Clipboard data size limit:",
         "FIELD_HEADER_COLOR_SCHEME"   : "Color scheme:",
         "FIELD_HEADER_CREATE_RECORDING_PATH" : "Automatically create recording path:",
         "FIELD_HEADER_CREATE_TYPESCRIPT_PATH" : "Automatically create typescript path:",
@@ -833,6 +885,7 @@
         "FIELD_HEADER_DISABLE_PASTE"  : "Disable pasting from client:",
         "FIELD_HEADER_FONT_NAME"      : "Font name:",
         "FIELD_HEADER_FONT_SIZE"      : "Font size:",
+        "FIELD_HEADER_FUNC_KEYS_AND_KEYPAD" : "Function keys and keypad behavior:",
         "FIELD_HEADER_HOSTNAME"       : "Hostname:",
         "FIELD_HEADER_LOGIN_FAILURE_REGEX" : "Login failure regular expression:",
         "FIELD_HEADER_LOGIN_SUCCESS_REGEX" : "Login success regular expression:",
@@ -846,6 +899,7 @@
         "FIELD_HEADER_RECORDING_EXCLUDE_MOUSE"  : "Exclude mouse:",
         "FIELD_HEADER_RECORDING_EXCLUDE_OUTPUT" : "Exclude graphics/streams:",
         "FIELD_HEADER_RECORDING_INCLUDE_KEYS"   : "Include key events:",
+        "FIELD_HEADER_RECORDING_INCLUDE_CLIPBOARD" : "Include clipboard events:",
         "FIELD_HEADER_RECORDING_NAME" : "Recording name:",
         "FIELD_HEADER_RECORDING_PATH" : "Recording path:",
         "FIELD_HEADER_SCROLLBACK"     : "Maximum scrollback size:",
@@ -863,6 +917,11 @@
         "FIELD_OPTION_BACKSPACE_EMPTY" : "",
         "FIELD_OPTION_BACKSPACE_8"     : "Backspace (Ctrl-H)",
         "FIELD_OPTION_BACKSPACE_127"   : "Delete (Ctrl-?)",
+
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_EMPTY"    : "",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_262144"   : "256KB",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_1048576"  : "1MB",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_10485760" : "10MB",
 
         "FIELD_OPTION_COLOR_SCHEME_BLACK_WHITE" : "Black on white",
         "FIELD_OPTION_COLOR_SCHEME_EMPTY"       : "",
@@ -885,6 +944,10 @@
         "FIELD_OPTION_FONT_SIZE_72"    : "72",
         "FIELD_OPTION_FONT_SIZE_96"    : "96",
         "FIELD_OPTION_FONT_SIZE_EMPTY" : "",
+
+        "FIELD_OPTION_FUNC_KEYS_AND_KEYPAD_EMPTY" : "",
+        "FIELD_OPTION_FUNC_KEYS_AND_KEYPAD_ESC"   : "ESC[n~",
+        "FIELD_OPTION_FUNC_KEYS_AND_KEYPAD_VT100" : "VT100",
 
         "FIELD_OPTION_TERMINAL_TYPE_ANSI"           : "ansi",
         "FIELD_OPTION_TERMINAL_TYPE_EMPTY"          : "",
@@ -910,6 +973,7 @@
     "PROTOCOL_VNC" : {
 
         "FIELD_HEADER_AUDIO_SERVERNAME" : "Audio server name:",
+        "FIELD_HEADER_CLIPBOARD_BUFFER_SIZE"  : "Clipboard data size limit:",
         "FIELD_HEADER_CLIPBOARD_ENCODING" : "Encoding:",
         "FIELD_HEADER_COLOR_DEPTH"      : "Color depth:",
         "FIELD_HEADER_COMPRESS_LEVEL"   : "Compression level:",
@@ -935,6 +999,7 @@
         "FIELD_HEADER_RECORDING_EXCLUDE_MOUSE"  : "Exclude mouse:",
         "FIELD_HEADER_RECORDING_EXCLUDE_OUTPUT" : "Exclude graphics/streams:",
         "FIELD_HEADER_RECORDING_INCLUDE_KEYS"   : "Include key events:",
+        "FIELD_HEADER_RECORDING_INCLUDE_CLIPBOARD" : "Include clipboard events:",
         "FIELD_HEADER_RECORDING_NAME" : "Recording name:",
         "FIELD_HEADER_RECORDING_PATH" : "Recording path:",
         "FIELD_HEADER_SFTP_DIRECTORY"             : "Default upload directory:",
@@ -957,6 +1022,12 @@
         "FIELD_HEADER_WOL_SEND_PACKET"    : "Send WoL packet:",
         "FIELD_HEADER_WOL_UDP_PORT"       : "UDP port for WoL packet:",
         "FIELD_HEADER_WOL_WAIT_TIME"      : "Host boot wait time:",
+
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_EMPTY"    : "",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_262144"   : "256KB",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_1048576"  : "1MB",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_10485760" : "10MB",
+        "FIELD_OPTION_CLIPBOARD_BUFFER_SIZE_52428800" : "50MB",
 
         "FIELD_OPTION_COLOR_DEPTH_8"     : "256 color",
         "FIELD_OPTION_COLOR_DEPTH_16"    : "Low color (16-bit)",
@@ -983,6 +1054,7 @@
         "FIELD_OPTION_CLIPBOARD_ENCODING_CP1252"    : "CP1252",
         "FIELD_OPTION_CLIPBOARD_ENCODING_EMPTY"     : "",
         "FIELD_OPTION_CLIPBOARD_ENCODING_ISO8859_1" : "ISO 8859-1",
+        "FIELD_OPTION_CLIPBOARD_ENCODING_MACROMAN"  : "Mac OS Roman",
         "FIELD_OPTION_CLIPBOARD_ENCODING_UTF_8"     : "UTF-8",
         "FIELD_OPTION_CLIPBOARD_ENCODING_UTF_16"    : "UTF-16",
 

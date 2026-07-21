@@ -83,6 +83,8 @@ angular.module('player').directive('guacPlayer', ['$injector', function guacPlay
     const keyEventDisplayService = $injector.get('keyEventDisplayService');
     const playerHeatmapService = $injector.get('playerHeatmapService');
     const playerTimeService = $injector.get('playerTimeService');
+    const $location         = $injector.get('$location');
+    const $routeParams      = $injector.get('$routeParams');
 
     /**
      * The number of milliseconds after the last detected mouse activity after
@@ -290,6 +292,22 @@ angular.module('player').directive('guacPlayer', ['$injector', function guacPlay
         var keyTimestamps = [];
 
         /**
+         * Clipboard events extracted from the recording, stored for merging
+         * with key events.
+         *
+         * @type {!Guacamole.ClipboardEventInterpreter.ClipboardEvent[]}
+         */
+        var clipboardEvents = [];
+
+        /**
+         * Key events extracted from the recording, stored for merging
+         * with clipboard events.
+         *
+         * @type {!Guacamole.KeyEventInterpreter.KeyEvent[]}
+         */
+        var keyEvents = [];
+
+        /**
          * Return true if any batches of key event logs are available for this
          * recording, or false otherwise.
          *
@@ -406,6 +424,14 @@ angular.module('player').directive('guacPlayer', ['$injector', function guacPlay
             }
         };
 
+        /**
+         * Close recording player and return to history.
+         */
+        $scope.closePlayer = function closePlayer() {
+            const datasource = encodeURIComponent($routeParams.dataSource);
+            $location.path('/settings/' + datasource + '/history');
+        };
+
         // Automatically load the requested session recording
         $scope.$watch('src', function srcChanged(src) {
 
@@ -485,11 +511,25 @@ angular.module('player').directive('guacPlayer', ['$injector', function guacPlay
                 // Extract key events from the recording
                 $scope.recording.onkeyevents = function keyEventsReceived(events) {
 
-                    // Convert to a display-optimized format
-                    $scope.textBatches = (
-                            keyEventDisplayService.parseEvents(events));
-
+                    keyEvents = events;
                     keyTimestamps = events.map(event => event.timestamp);
+
+                    // Convert to a display-optimized format
+                    $scope.textBatches = keyEventDisplayService.parseEventsWithClipboard(
+                        keyEvents, clipboardEvents
+                    );
+
+                };
+
+                // Extract clipboard events from the recording
+                $scope.recording.onclipboardevents = function clipboardEventsReceived(events) {
+
+                    clipboardEvents = events;
+
+                    // Convert to a display-optimized format
+                    $scope.textBatches = keyEventDisplayService.parseEventsWithClipboard(
+                        keyEvents, clipboardEvents
+                    );
 
                 };
 

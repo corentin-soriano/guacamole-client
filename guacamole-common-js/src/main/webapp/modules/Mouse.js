@@ -123,6 +123,17 @@ Guacamole.Mouse = function Mouse(element) {
         Guacamole.Event.DOMEvent.cancelEvent(e);
     }, false);
 
+    // Capture mouse events outside the display element when a button is
+    // pressed to allow drag and drop between multiple windows.
+    element.addEventListener("pointerdown", function(e) {
+        element.setPointerCapture(e.pointerId);
+    }, false);
+
+    // Stop capture when mouse button is released
+    element.addEventListener("pointerup", function(e) {
+        element.releasePointerCapture(e.pointerId);
+    }, false);
+
     element.addEventListener("mousemove", function(e) {
 
         // If ignoring events, decrement counter
@@ -145,8 +156,10 @@ Guacamole.Mouse = function Mouse(element) {
         }
 
         var button = MOUSE_BUTTONS[e.button];
-        if (button)
+        if (button) {
+            guac_mouse.move(Guacamole.Position.fromClientPosition(element, e.clientX, e.clientY), e);
             guac_mouse.press(button, e);
+        }
 
     }, false);
 
@@ -159,8 +172,10 @@ Guacamole.Mouse = function Mouse(element) {
         }
 
         var button = MOUSE_BUTTONS[e.button];
-        if (button)
+        if (button) {
+            guac_mouse.move(Guacamole.Position.fromClientPosition(element, e.clientX, e.clientY), e);
             guac_mouse.release(button, e);
+        }
 
     }, false);
 
@@ -542,10 +557,36 @@ Guacamole.Mouse.Event = function MouseEvent(type, state, events) {
 
     /**
      * The current mouse state at the time this event was fired.
+     * The state object is cloned so as not to be affected by subsequent events
+     * that will have their own dedicated Guacamole.Mouse.Event instance.
      *
      * @type {!Guacamole.Mouse.State}
      */
-    this.state = state;
+    this.state = { ...state };
+
+    /**
+     * The state of all modifier keys at the time this event was received.
+     * If the original DOM event is not a MouseEvent or modifier state is
+     * otherwise unavailable, modifier flags default to false. If Keyboard.js
+     * is unavailable, this will be null.
+     *
+     * @type {?Guacamole.Keyboard.ModifierState}
+     */
+    this.modifiers = (function getMouseModifierState() {
+
+        // Support both single-event and event-array inputs from DOMEvent.
+        var firstEvent = Array.isArray(events) ? events[0] : events;
+
+        // Guard against Keyboard.js not being available/loaded yet.
+        if (!Guacamole.Keyboard || !Guacamole.Keyboard.ModifierState)
+            return null;
+
+        if (!firstEvent || !Guacamole.Keyboard.ModifierState.fromMouseEvent)
+            return new Guacamole.Keyboard.ModifierState();
+
+        return Guacamole.Keyboard.ModifierState.fromMouseEvent(firstEvent);
+
+    })();
 
     /**
      * @inheritdoc
