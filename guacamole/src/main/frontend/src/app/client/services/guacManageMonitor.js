@@ -387,6 +387,18 @@ angular.module('client').factory('guacManageMonitor', ['$injector',
      */
     service.sendSize = function sendSize(requestedClient, size) {
 
+        // Initialize the primary monitor if its initial size matched the
+        // remote desktop and no resize was necessary.
+        if (!monitorsInfos.details[0]) {
+            updateMonitorsInfos({
+                id: 0,
+                width: display.getWidth(),
+                height: display.getHeight(),
+                left: $window.screenX,
+                top: $window.screenY
+            });
+        }
+
         const monitorPosition = monitorsInfos.map[size.monitorId];
 
         updateMonitorsInfos({

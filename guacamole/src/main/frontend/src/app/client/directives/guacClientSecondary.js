@@ -140,6 +140,10 @@ angular.module('client').directive('guacClientSecondary', [function guacClient()
                 monitorId: guacManageMonitor.monitorId,
             };
 
+            // Initialize the display before receiving remote drawing updates
+            display.setMonitorSize(width, height);
+            display.scale(1 / pixelDensity);
+
             // Send resize event to main window
             guacManageMonitor.pushBroadcastMessage('size', size);
 
